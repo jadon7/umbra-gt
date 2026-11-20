@@ -1,0 +1,2117 @@
+/*
+ * 界面样式。
+ * 风格（0.11.0 改版）：干净、克制，和车库的白色布光、灰色的小地图是一路的——
+ * 半透明的深色玻璃面板、细线、圆角；字以白和灰为主，只有一个强调色（尾灯红），用在主要操作、自己的名次和警告上。
+ * 以前那套黄粉撞色、斜切色块、带硬投影的粗斜体（涂鸦街头风）是配合早期的涂鸦特效做的，特效改成写实以后就不搭了。
+ *
+ * 所有界面都在 #app 里。手机竖着拿的时候 #app 整个转九十度（见 viewport.ts），所以这里不用 100vw / 100vh，
+ * 也不用 position: fixed，一律相对 #app 定位；离边缘的距离用 --edge 加上刘海屏的安全区。
+ */
+:root {
+  --accent: #ff3b2f;
+  --accent-soft: rgba(255, 59, 47, 0.18);
+  --amber: #ffb224;
+  --ice: #6fd3ff;
+  --ink: #050506;
+  --glass: rgba(16, 17, 20, 0.56);
+  --glass-strong: rgba(12, 13, 16, 0.84);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.3);
+  --text: #f4f4f2;
+  --dim: rgba(244, 244, 242, 0.62);
+  --faint: rgba(244, 244, 242, 0.38);
+  --display: 'Avenir Next Condensed', 'DIN Condensed', 'Roboto Condensed', sans-serif-condensed, 'Arial Narrow', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  --body: 'Avenir Next', 'Helvetica Neue', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --radius: 14px;
+  --blur: blur(18px) saturate(1.25);
+  /* 离屏幕边缘多远 */
+  --edge: 34px;
+  /* 刘海屏的安全区（竖着拿、界面被转过来的时候四个方向要对调，见下面 html.rotated） */
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --left: calc(var(--edge) + var(--safe-l));
+  --right: calc(var(--edge) + var(--safe-r));
+  --top: calc(var(--edge) - 6px + var(--safe-t));
+  --bottom: calc(var(--edge) - 4px + var(--safe-b));
+}
+
+/* 界面顺时针转了九十度：界面的左边是屏幕的上边，右边是屏幕的下边，上边是屏幕的右边，下边是屏幕的左边 */
+html.rotated {
+  --safe-l: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-left, 0px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+#app {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  transform-origin: 0 0;
+}
+
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  outline: none;
+  touch-action: none;
+}
+
+#ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#ui > * {
+  pointer-events: auto;
+}
+
+/* ---------- 小标签、字标 ---------- */
+
+/* 小标签：一道红色的短竖线，后面一行小字（地图名、页面名） */
+.brand-tag {
+  display: inline-block;
+  padding: 1px 0 1px 10px;
+  border-left: 2px solid var(--accent);
+  color: var(--dim);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* 车库页左上角：UMBRA 是细体、字距很宽的字标（和车库墙上那一行是同一个写法），后面跟着车型名 */
+.brand {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  pointer-events: none !important;
+}
+
+.brand h1 {
+  margin: 12px 0 0;
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: 0.3em;
+}
+
+.brand h1 em {
+  margin-left: -0.08em;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.brand-sub {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+}
+
+/* ---------- 改装面板 ---------- */
+
+.panel {
+  position: absolute;
+  right: var(--right);
+  top: var(--top);
+  width: 276px;
+  max-height: calc(100% - var(--top) - var(--bottom) - 64px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 18px 18px 6px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.panel::-webkit-scrollbar {
+  display: none;
+}
+
+.panel section {
+  margin-bottom: 16px;
+}
+
+.panel h2 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.panel h2 b {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 9px;
+}
+
+.swatch {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 6px 10px rgba(255, 255, 255, 0.18);
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+/* 选中的那一个：外面套一圈白环 */
+.swatch.active {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 6px 10px rgba(255, 255, 255, 0.18),
+    0 0 0 2px var(--ink),
+    0 0 0 3.5px var(--text);
+}
+
+.chips {
+  display: flex;
+  gap: 7px;
+}
+
+.chip {
+  flex: 1;
+  padding: 7px 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--dim);
+  font: 500 13px var(--body);
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.chip:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.chip.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: #000;
+  font-weight: 600;
+}
+
+/* ---------- 视角与开关 ---------- */
+
+.dock {
+  position: absolute;
+  left: 50%;
+  bottom: var(--bottom);
+  display: flex;
+  gap: 12px;
+  transform: translateX(-50%);
+}
+
+.dock-group {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.dock button {
+  min-width: 58px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--dim);
+  font: 500 13px var(--body);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.dock button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dock button.active {
+  background: var(--text);
+  color: #000;
+  font-weight: 600;
+}
+
+.dock button.cta {
+  min-width: 96px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.dock button.cta:hover {
+  background: #ff5648;
+  color: #fff;
+}
+
+/* ---------- 状态 ---------- */
+
+.stat {
+  position: absolute;
+  left: var(--left);
+  bottom: var(--bottom);
+  font: 500 11.5px/1.5 var(--mono);
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  pointer-events: none !important;
+}
+
+.stat b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hint {
+  position: absolute;
+  right: var(--right);
+  bottom: var(--bottom);
+  font-size: 11.5px;
+  color: var(--faint);
+  letter-spacing: 0.08em;
+  pointer-events: none !important;
+}
+
+/* ---------- 加载 ---------- */
+
+#loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  transition: opacity 0.7s ease;
+  z-index: 10;
+}
+
+#loading.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-inner {
+  width: 300px;
+  text-align: center;
+}
+
+.loading-title {
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 0.34em;
+  padding-left: 0.34em;
+}
+
+.loading-title span {
+  margin-left: -0.1em;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.loading-bar {
+  height: 2px;
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-bar i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: var(--text);
+  transition: width 0.2s ease;
+}
+
+.loading-text {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+}
+
+.loading-text.error {
+  color: #ff8a80;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+/* ---------- 试驾界面 ---------- */
+
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud-top {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hud-exit {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font: 500 12px var(--body);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.hud-exit:hover {
+  border-color: var(--line-strong);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  font: 600 10.5px/16px var(--mono);
+  text-align: center;
+  color: var(--dim);
+}
+
+.hud-gauge {
+  position: absolute;
+  right: var(--right);
+  bottom: var(--bottom);
+  width: 280px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+}
+
+.hud-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+/* 挡位：一个细线勾出来的圆角方块 */
+.hud-gear {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  font: italic 800 30px/43px var(--display);
+  text-align: center;
+}
+
+.hud-speed {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hud-speed b {
+  min-width: 168px;
+  font: italic 800 98px/0.88 var(--display);
+  letter-spacing: -0.01em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-speed span {
+  font: 600 11.5px var(--body);
+  letter-spacing: 0.2em;
+  color: var(--dim);
+}
+
+.hud-rpm,
+.hud-nitro > div {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hud-rpm {
+  margin-top: 8px;
+}
+
+.hud-rpm i,
+.hud-nitro i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+.hud-rpm i {
+  background: linear-gradient(90deg, #f4f4f2 0%, #f4f4f2 76%, var(--amber) 88%, var(--accent) 100%);
+}
+
+.hud-rpm i.hot {
+  filter: brightness(1.35);
+}
+
+.hud-nitro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 9px;
+}
+
+.hud-nitro label {
+  font: 600 11px var(--body);
+  letter-spacing: 0.2em;
+  color: var(--ice);
+}
+
+.hud-nitro > div {
+  flex: 1;
+}
+
+.hud-nitro i {
+  background: var(--ice);
+}
+
+.hud-nitro.active i {
+  background: #fff;
+  box-shadow: 0 0 12px var(--ice);
+}
+
+/* 漂移角度：画面上方的一枚小药丸 */
+.hud-drift {
+  position: absolute;
+  left: 50%;
+  top: 15%;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 4px 18px 5px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--dim);
+  font: 600 12px var(--body);
+  letter-spacing: 0.24em;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transform: translateX(-50%) scale(0.86);
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.hud-drift.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.hud-drift b {
+  font: italic 800 26px/1 var(--display);
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.hud-help {
+  position: absolute;
+  left: var(--left);
+  bottom: var(--bottom);
+  padding: 14px 18px 12px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.hud-help.hidden {
+  display: none;
+}
+
+.hud-help h3 {
+  margin: 0 0 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.hud-help dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.hud-help dt {
+  font: 600 11.5px var(--mono);
+  color: var(--text);
+}
+
+.hud-help dd {
+  margin: 0;
+  color: var(--dim);
+}
+
+.hud-help p {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+.hud-tele {
+  position: absolute;
+  right: var(--right);
+  top: var(--top);
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: 500 12px/1.6 var(--mono);
+  color: var(--text);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.hud-toast {
+  position: absolute;
+  left: 50%;
+  top: 24%;
+  padding: 7px 22px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font: 600 14px var(--body);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hud-toast.show {
+  opacity: 1;
+}
+
+/* ---------- 菜单 ---------- */
+
+.menu {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 3, 4, 0.56);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.menu[data-screen='main'] {
+  place-items: stretch;
+  background: linear-gradient(90deg, rgba(3, 3, 4, 0.92) 0%, rgba(3, 3, 4, 0.6) 30%, rgba(3, 3, 4, 0) 60%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.menu-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+  padding: 0 0 0 calc(64px + var(--safe-l));
+  max-width: 560px;
+}
+
+/* 主菜单的字标：UMBRA 细体、宽字距，GT 是红色的粗斜体 */
+.menu-brand h1 {
+  margin: 14px 0 0;
+  font-family: var(--body);
+  font-weight: 300;
+  font-size: 68px;
+  line-height: 1;
+  letter-spacing: 0.3em;
+}
+
+.menu-brand h1 em {
+  margin-left: -0.08em;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  border-top: 1px solid var(--line);
+}
+
+/* 菜单项：一行一项，细线分隔。选中的那一行字变白、往右挪一点，左边亮起一道红线 */
+.menu-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 6px 14px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-left: 2px solid transparent;
+  color: var(--dim);
+  font: 500 18px var(--body);
+  letter-spacing: 0.12em;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    padding 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.menu-item small {
+  font: 400 12px var(--body);
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+  padding-left: 22px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0));
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+
+.menu-item.primary {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.menu-foot {
+  font-size: 11.5px;
+  color: var(--faint);
+  letter-spacing: 0.1em;
+}
+
+/* 手机上：提醒可以装到主屏幕 */
+.menu-install {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+
+/* 主菜单最下面的素材署名 */
+.menu-credit {
+  margin-top: 10px;
+  max-width: 460px;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--faint);
+}
+
+.menu-credit a {
+  color: inherit;
+  text-decoration: underline;
+  pointer-events: auto;
+}
+
+.menu-panel {
+  width: min(600px, calc(100% - 48px));
+  max-height: calc(100% - 40px - var(--safe-t) - var(--safe-b));
+  overflow: auto;
+  scrollbar-width: none;
+  padding: 28px 32px 26px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.menu-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-narrow {
+  width: min(400px, calc(100% - 48px));
+}
+
+.menu-narrow .menu-list {
+  width: 100%;
+}
+
+.menu-results {
+  width: min(680px, calc(100% - 48px));
+}
+
+.menu-title h2 {
+  margin: 12px 0 0;
+  font: 600 34px/1.1 var(--body);
+  letter-spacing: 0.06em;
+}
+
+.menu-title h2.win {
+  color: var(--accent);
+}
+
+.menu-desc {
+  margin: 12px 0 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--dim);
+}
+
+.menu-row {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 11px;
+}
+
+.menu-row > label {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.menu-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* 面板底下的按钮：圆角的实心 / 描边按钮，不是列表行 */
+.menu-actions .menu-item {
+  flex: 1;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.menu-actions .menu-item:hover,
+.menu-actions .menu-item:focus-visible {
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text);
+}
+
+.menu-actions .menu-item.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.menu-actions .menu-item.primary:hover,
+.menu-actions .menu-item.primary:focus-visible {
+  background: #ff5648;
+  border-color: #ff5648;
+}
+
+.menu-volume {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.menu-volume .chip {
+  flex: 0 0 72px;
+}
+
+.menu-volume input[type='range'] {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: linear-gradient(90deg, var(--text) var(--fill, 70%), rgba(255, 255, 255, 0.16) var(--fill, 70%));
+  border-radius: 2px;
+  outline: none;
+}
+
+.menu-volume input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.menu-keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 18px;
+  margin: 18px 0 0;
+  font-size: 13px;
+}
+
+.menu-keys dt {
+  font: 600 12px var(--mono);
+  color: var(--text);
+}
+
+.menu-keys dd {
+  margin: 0;
+  color: var(--dim);
+}
+
+.menu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-table th {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--faint);
+  text-align: left;
+}
+
+.menu-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--dim);
+}
+
+.menu-table td:first-child {
+  width: 54px;
+  font: italic 800 21px var(--display);
+  color: var(--text);
+}
+
+.menu-table td i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.menu-table tr.me td {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* 车库页左上角的"返回"按钮 */
+.garage-back {
+  position: absolute;
+  left: var(--left);
+  top: calc(var(--top) + 122px);
+  padding: 6px 16px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font: 500 12.5px var(--body);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.garage-back:hover {
+  border-color: var(--text);
+}
+
+/* ---------- 比赛界面 ---------- */
+
+.race-left {
+  position: absolute;
+  left: var(--left);
+  top: calc(var(--top) + 44px);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+}
+
+.race-rank {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.race-rank b {
+  display: inline-block;
+  font: italic 800 96px/0.92 var(--display);
+  color: var(--text);
+  transform-origin: left bottom;
+}
+
+.race-rank b.pop {
+  animation: race-pop 0.35s ease-out;
+}
+
+.race-rank span {
+  font: italic 700 32px var(--display);
+  color: var(--dim);
+}
+
+@keyframes race-pop {
+  0% {
+    transform: scale(1.4);
+    color: var(--accent);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.race-lap {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 12px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: 500 12px var(--body);
+  letter-spacing: 0.16em;
+  text-shadow: none;
+}
+
+.race-board {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  text-shadow: none;
+}
+
+.race-board li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 164px;
+  margin-bottom: 3px;
+  padding: 3px 10px 3px 8px;
+  background: rgba(12, 13, 16, 0.5);
+  border-left: 2px solid transparent;
+  border-radius: 6px;
+  color: var(--dim);
+}
+
+/* 自己那一行：字是白的，左边一道红线 */
+.race-board li.me {
+  background: rgba(255, 255, 255, 0.16);
+  border-left-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.race-board em {
+  width: 14px;
+  font: italic 800 14px var(--display);
+  text-align: center;
+  color: var(--text);
+}
+
+.race-board i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.race-board span {
+  flex: 1;
+  letter-spacing: 0.08em;
+}
+
+.race-board small {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.race-clock {
+  position: absolute;
+  right: var(--right);
+  top: var(--top);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+}
+
+.race-clock b {
+  display: block;
+  font: italic 700 46px/1 var(--display);
+}
+
+.race-clock div {
+  margin-top: 4px;
+  font: 500 13.5px var(--mono);
+  color: var(--dim);
+}
+
+.race-clock label {
+  margin-right: 10px;
+  font: 600 11px var(--body);
+  letter-spacing: 0.18em;
+  color: var(--faint);
+}
+
+.race-big {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  font: italic 800 220px/1 var(--display);
+  color: var(--text);
+  text-shadow: 0 6px 60px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.race-big.go {
+  color: var(--accent);
+  font-size: 190px;
+}
+
+.race-big.show {
+  animation: race-count 0.95s ease-out forwards;
+}
+
+@keyframes race-count {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+}
+
+.race-banner {
+  position: absolute;
+  left: 50%;
+  top: 27%;
+  padding: 10px 40px 11px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  color: var(--text);
+  font: italic 800 42px/1.1 var(--display);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transform: translateX(-50%) scale(0.8);
+  opacity: 0;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.race-banner.finish {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.race-banner.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.race-note {
+  position: absolute;
+  left: 50%;
+  top: 17%;
+  padding: 5px 18px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: 500 14px var(--mono);
+  white-space: nowrap;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.race-note.show {
+  opacity: 1;
+}
+
+.race-warn {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  padding: 7px 26px;
+  background: var(--accent);
+  border-radius: 999px;
+  color: #fff;
+  font: 600 16px var(--body);
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  display: none;
+}
+
+.race-warn.show {
+  display: block;
+  animation: race-blink 0.7s steps(2) infinite;
+}
+
+@keyframes race-blink {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.race-mapbox {
+  position: absolute;
+  left: calc(var(--left) - 6px);
+  bottom: var(--bottom);
+  width: 236px;
+}
+
+.race-map {
+  display: block;
+  width: 236px;
+  height: 236px;
+  /* 一块半透明的灰底，上面只有路线：远处（上沿）淡出去，像一块往前铺开的地面 */
+  background: linear-gradient(180deg, rgba(120, 124, 132, 0.2) 0%, rgba(96, 100, 108, 0.46) 38%, rgba(86, 90, 98, 0.56) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, #000 22%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, #000 22%);
+}
+
+/* 小地图旁边：下一个弯往哪拐、还有多远 */
+.race-turn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* 放在地图右边、贴着下沿：地图上方是排行榜，八辆车的时候会顶到一起 */
+  position: absolute;
+  left: calc(100% + 12px);
+  bottom: 0;
+  width: max-content;
+  padding: 4px 16px 4px 8px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.race-turn.show {
+  opacity: 1;
+  transform: none;
+}
+
+.race-turn svg {
+  width: 36px;
+  height: 40px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.race-turn.right svg {
+  transform: scaleX(-1);
+}
+
+.race-turn b {
+  font: italic 800 28px/1 var(--display);
+  letter-spacing: 0.02em;
+}
+
+.race-turn span {
+  font: 500 11.5px var(--body);
+  color: var(--dim);
+}
+
+/* 快到了：变成琥珀色；该拐了：整块变红 */
+.race-turn.soon {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.race-turn.now {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.race-turn.now b {
+  font: 600 16px var(--body);
+  letter-spacing: 0.14em;
+}
+
+.race-turn.now span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.race-tags {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.race-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 2px;
+  background: rgba(12, 13, 16, 0.68);
+  border-radius: 6px;
+  font: 600 11.5px var(--body);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.race-tag em {
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 4px;
+  color: #000;
+  font: italic 800 13px/18px var(--display);
+  text-align: center;
+}
+
+/* 比赛时按键提示往上挪，给小地图让位置 */
+.hud.racing .hud-help {
+  bottom: calc(var(--bottom) + 250px);
+}
+
+/* ---------- 车型卡片 ---------- */
+
+.model-card {
+  position: absolute;
+  left: var(--left);
+  top: calc(var(--top) + 168px);
+  width: 300px;
+  padding: 16px 16px 14px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.model-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.model-variants {
+  margin-top: 6px;
+}
+
+.model-variants .model-chip {
+  font-size: 14px;
+  padding: 5px 0 4px;
+}
+
+.model-chip {
+  flex: 1;
+  padding: 7px 0 6px;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
+}
+
+.model-chip:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.model-chip.active {
+  color: #000;
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.model-tagline {
+  margin-top: 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.model-blurb {
+  margin: 6px 0 12px;
+  min-height: 54px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--dim);
+}
+
+.model-stat {
+  display: grid;
+  grid-template-columns: 38px 1fr 20px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  color: var(--faint);
+}
+
+.model-stat i {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.model-stat b {
+  display: block;
+  height: 100%;
+  background: var(--text);
+  transition: width 0.25s ease;
+}
+
+.model-stat em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+}
+
+/* ---------- 赛前特写镜头 ---------- */
+
+/* 镜头期间把开车的界面都藏起来，只留黑边和字 */
+#hud.cinematic > *:not(.intro) {
+  visibility: hidden;
+}
+
+/* 自动驾驶的电影镜头：也藏起来，但触屏上右上角的暂停、换镜头得留着，不然出不去 */
+#hud.cine > *:not(.intro):not(.touch-pad) {
+  visibility: hidden;
+}
+
+#hud.cine .touch-pad .tc:not(.tc-pause):not(.tc-cam) {
+  visibility: hidden;
+}
+
+.intro {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.intro-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: #000;
+}
+
+.intro-bar-top {
+  top: 0;
+}
+
+.intro-bar-bottom {
+  bottom: 0;
+}
+
+.intro-kicker {
+  display: block;
+  font: 600 11.5px var(--body);
+  letter-spacing: 0.34em;
+  color: var(--dim);
+}
+
+.intro-event,
+.intro-card {
+  position: absolute;
+  left: calc(6% + var(--safe-l));
+  bottom: 16%;
+  opacity: 0;
+  transform-origin: left bottom;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7);
+}
+
+.intro-event b {
+  display: block;
+  margin: 6px 0 10px;
+  font: 300 84px/1 var(--body);
+  letter-spacing: 0.16em;
+  color: var(--text);
+}
+
+.intro-event p {
+  margin: 0;
+  padding: 0 0 0 12px;
+  width: max-content;
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+  font: 500 14px var(--body);
+  letter-spacing: 0.14em;
+}
+
+.intro-card {
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  padding: 4px 26px 4px 0;
+  border-left: 3px solid var(--text);
+}
+
+.intro-card em {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 66px;
+  margin-left: 16px;
+  border-radius: 10px;
+  font: italic 800 56px/1 var(--display);
+  color: #000;
+  text-shadow: none;
+}
+
+.intro-card b {
+  display: block;
+  margin: 4px 0 2px;
+  font: italic 800 68px/0.95 var(--display);
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.intro-card p {
+  margin: 0;
+  font: 500 14px var(--body);
+  letter-spacing: 0.16em;
+  color: var(--dim);
+}
+
+.intro-skip {
+  position: absolute;
+  right: calc(4% + var(--safe-r));
+  bottom: 13%;
+  font: 500 12px var(--body);
+  letter-spacing: 0.1em;
+  color: var(--text);
+  opacity: 0;
+}
+
+/* ---------- 触屏操作 ---------- */
+
+/* 只在触屏设备上出现（html.touch），开车的时候盖在画面上。按钮是半透明的圆，按住的时候变亮 */
+.touch-pad {
+  display: none;
+}
+
+html.touch .touch-pad {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tc {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: rgba(16, 17, 20, 0.36);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.86);
+  font: 600 13px var(--body);
+  letter-spacing: 0.1em;
+  pointer-events: auto;
+  touch-action: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition:
+    background 0.08s ease,
+    transform 0.08s ease;
+}
+
+.tc.down {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: #fff;
+  transform: scale(0.94);
+}
+
+.tc svg {
+  width: 44%;
+  height: 44%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 左手：方向 */
+.tc-left,
+.tc-right {
+  bottom: calc(18px + var(--safe-b));
+  width: 92px;
+  height: 92px;
+}
+
+.tc-left {
+  left: calc(18px + var(--safe-l));
+}
+
+.tc-right {
+  left: calc(124px + var(--safe-l));
+}
+
+/* 右手：刹车在最右下，漂移在它左边，氮气在它上面；手动油门的话油门占最右下，其余往左挪一格 */
+.tc-brake,
+.tc-gas {
+  right: calc(18px + var(--safe-r));
+  bottom: calc(18px + var(--safe-b));
+  width: 92px;
+  height: 92px;
+}
+
+.tc-drift {
+  right: calc(124px + var(--safe-r));
+  bottom: calc(18px + var(--safe-b));
+  width: 80px;
+  height: 80px;
+}
+
+.tc-nitro {
+  right: calc(30px + var(--safe-r));
+  bottom: calc(124px + var(--safe-b));
+  width: 72px;
+  height: 72px;
+  border-color: rgba(111, 211, 255, 0.6);
+  color: var(--ice);
+}
+
+.tc-nitro.down {
+  background: rgba(111, 211, 255, 0.4);
+  border-color: var(--ice);
+}
+
+.tc-gas {
+  display: none;
+}
+
+.touch-pad.manual .tc-gas {
+  display: grid;
+}
+
+.touch-pad.manual .tc-brake {
+  right: calc(124px + var(--safe-r));
+  width: 80px;
+  height: 80px;
+}
+
+.touch-pad.manual .tc-drift {
+  right: calc(216px + var(--safe-r));
+}
+
+/* 右上角一排小按钮：暂停、换镜头、复位 */
+.tc-small {
+  top: calc(12px + var(--safe-t));
+  width: 44px;
+  height: 44px;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.tc-pause {
+  right: calc(14px + var(--safe-r));
+}
+
+.tc-cam {
+  right: calc(66px + var(--safe-r));
+}
+
+.tc-reset {
+  right: calc(118px + var(--safe-r));
+}
+
+/* 触屏上：键盘的按键提示、"菜单 Esc"按钮不出现（右上角有暂停按钮） */
+html.touch .hud-help,
+html.touch .hud-exit,
+html.touch .hint,
+html.touch .menu-foot,
+html.touch .intro-skip kbd {
+  display: none;
+}
+
+/* 触屏上车速表往上让一让，给右手的按钮腾地方；比赛的计时挪到中间靠上 */
+html.touch .hud-gauge {
+  right: calc(50% - 110px);
+  bottom: calc(10px + var(--safe-b));
+  width: 220px;
+}
+
+html.touch .race-clock {
+  right: calc(176px + var(--safe-r));
+}
+
+/* 小地图：挪到左上，名次的下面（左下角是方向键） */
+html.touch .race-mapbox {
+  left: auto;
+  right: calc(18px + var(--safe-r));
+  bottom: auto;
+  top: calc(64px + var(--safe-t));
+  width: 132px;
+}
+
+html.touch .race-map {
+  width: 132px;
+  height: 132px;
+  border-radius: 14px;
+}
+
+html.touch .race-turn {
+  left: auto;
+  right: calc(100% + 10px);
+  bottom: auto;
+  top: 0;
+}
+
+html.touch .race-board {
+  display: none;
+}
+
+/* ---------- 小屏幕（手机横着拿：高度只有三四百像素） ---------- */
+
+/*
+ * 不用 @media (max-height) 判断：手机竖着拿的时候窗口是高的，界面却是转过来的、只有三四百像素高。
+ * 所以由 viewport.ts 按界面自己的高度给 <html> 加上 compact 这个类
+ */
+html.compact {
+  --edge: 16px;
+
+  .brand h1 {
+    margin-top: 8px;
+    font-size: 30px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .garage-back {
+    top: calc(var(--top) + 64px);
+    padding: 4px 13px;
+  }
+
+  .model-card {
+    top: calc(var(--top) + 100px);
+    width: 226px;
+    padding: 10px 11px;
+  }
+
+  .model-chip {
+    font-size: 14px;
+    padding: 5px 0 4px;
+  }
+
+  .model-variants .model-chip {
+    font-size: 12.5px;
+  }
+
+  .model-tagline {
+    margin-top: 8px;
+    font-size: 12.5px;
+  }
+
+  .model-blurb {
+    display: none;
+  }
+
+  .model-stat {
+    margin-top: 4px;
+    font-size: 10.5px;
+  }
+
+  .panel {
+    width: 214px;
+    padding: 12px 12px 2px;
+    max-height: calc(100% - var(--top) - var(--bottom) - 44px);
+  }
+
+  .panel section {
+    margin-bottom: 11px;
+  }
+
+  .panel h2 {
+    margin-bottom: 6px;
+    font-size: 10.5px;
+  }
+
+  .swatches {
+    gap: 7px;
+  }
+
+  .chip {
+    padding: 5px 0;
+    font-size: 12px;
+  }
+
+  .dock {
+    gap: 8px;
+  }
+
+  .dock button {
+    min-width: 0;
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+
+  .dock button.cta {
+    min-width: 78px;
+    font-size: 13px;
+  }
+
+  .stat,
+  .hint {
+    display: none;
+  }
+
+  .menu-main {
+    gap: 14px;
+    padding-left: calc(28px + var(--safe-l));
+  }
+
+  .menu-brand h1 {
+    margin-top: 8px;
+    font-size: 40px;
+  }
+
+  .menu-list {
+    width: 300px;
+  }
+
+  .menu-item {
+    padding: 8px 6px 8px 12px;
+    font-size: 15px;
+  }
+
+  .menu-item:hover,
+  .menu-item:focus-visible {
+    padding-left: 18px;
+  }
+
+  .menu-credit {
+    margin-top: 0;
+    max-width: 420px;
+    font-size: 9px;
+    line-height: 1.45;
+  }
+
+  .menu-panel {
+    padding: 16px 20px 16px;
+    border-radius: 16px;
+    max-height: calc(100% - 16px - var(--safe-t) - var(--safe-b));
+  }
+
+  .menu-title h2 {
+    margin-top: 6px;
+    font-size: 22px;
+  }
+
+  .menu-desc {
+    margin: 6px 0 10px;
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  .menu-row {
+    margin-bottom: 6px;
+  }
+
+  .menu-actions {
+    margin-top: 12px;
+  }
+
+  .menu-actions .menu-item,
+  .menu-actions .menu-item:hover,
+  .menu-actions .menu-item:focus-visible {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  .menu-keys {
+    margin-top: 10px;
+    gap: 3px 14px;
+    font-size: 12px;
+  }
+
+  .menu-table td {
+    padding: 4px 10px;
+  }
+
+  .hud-speed b {
+    min-width: 108px;
+    font-size: 60px;
+  }
+
+  .hud-gear {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font: italic 800 22px/31px var(--display);
+  }
+
+  .hud-rpm {
+    margin-top: 4px;
+  }
+
+  .hud-nitro {
+    margin-top: 5px;
+  }
+
+  .hud-drift {
+    top: 22%;
+  }
+
+  .race-left {
+    top: calc(var(--top) + 30px);
+  }
+
+  .race-rank b {
+    font-size: 56px;
+  }
+
+  .race-rank span {
+    font-size: 20px;
+  }
+
+  .race-lap {
+    margin-top: 2px;
+    padding: 2px 10px;
+    font-size: 11px;
+  }
+
+  .race-clock b {
+    font-size: 28px;
+  }
+
+  .race-clock div {
+    margin-top: 1px;
+    font-size: 11px;
+  }
+
+  .race-big {
+    font-size: 130px;
+  }
+
+  .race-big.go {
+    font-size: 110px;
+  }
+
+  .race-banner {
+    padding: 6px 26px 7px;
+    font-size: 28px;
+  }
+
+  .intro-event b {
+    font-size: 44px;
+  }
+
+  .intro-card b {
+    font-size: 40px;
+  }
+
+  .intro-card em {
+    min-width: 48px;
+    font-size: 38px;
+  }
+}
+
+/* 窄窗口（桌面上把窗口拉窄了） */
+@media (max-width: 900px) {
+  html:not(.compact) {
+  .brand h1 {
+    font-size: 34px;
+  }
+
+  .panel {
+    width: 228px;
+    padding: 14px 14px 4px;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .menu-brand h1 {
+    font-size: 48px;
+  }
+
+  .menu-main {
+    padding-left: calc(28px + var(--safe-l));
+  }
+
+  .race-rank b {
+    font-size: 72px;
+  }
+
+  .race-big {
+    font-size: 150px;
+  }
+
+  .race-board {
+    display: none;
+  }
+
+  .intro-event b {
+    font-size: 56px;
+  }
+
+  .intro-card b {
+    font-size: 46px;
+  }
+}
+}

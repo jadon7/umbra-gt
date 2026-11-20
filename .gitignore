@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.snaps/
+.DS_Store
+*.blend1
+.wrangler/
+.claude/
+# 宣传片成片超过 GitHub 单文件 100 MB 的上限，放在 Releases 里
+promo/umbra-gt-promo.mp4
+promo/work/

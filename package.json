@@ -1,0 +1,33 @@
+{
+  "name": "street-racer",
+  "private": true,
+  "version": "0.14.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "sim": "node scripts/sim.ts",
+    "track-check": "node scripts/track-check.ts",
+    "city-check": "node scripts/city-check.ts",
+    "city-lap": "node scripts/city-lap.ts",
+    "race-sim": "node scripts/race-sim.ts",
+    "corner-test": "node scripts/corner-test.ts",
+    "show-lap": "node scripts/show-lap.ts",
+    "mountain-check": "node scripts/mountain-check.ts",
+    "mountain-survey": "node scripts/mountain-survey.ts",
+    "scenery-check": "node scripts/mountain-scenery-check.ts",
+    "perf": "node scripts/perf.ts",
+    "pwa-check": "node scripts/pwa-check.ts",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name umbra-gt --branch main --commit-dirty=true"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.187.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  }
+}

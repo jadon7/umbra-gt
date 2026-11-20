@@ -1,0 +1,11 @@
+{
+  // 自定义域名 umbra.dsxzai.com 上的转发 Worker（见 cloudflare/domain-proxy.js）。
+  // 用法：npx wrangler deploy -c wrangler.worker.jsonc
+  // 文件名故意不叫 wrangler.jsonc：那样 `wrangler pages deploy` 也会读它，两种发布方式会互相干扰。
+  "name": "umbra-gt-domain",
+  "main": "./cloudflare/domain-proxy.js",
+  "compatibility_date": "2026-11-10",
+  "workers_dev": false,
+  // 自定义域名：Cloudflare 会自动建好这个域名的解析记录和证书
+  "routes": [{ "pattern": "umbra.dsxzai.com", "custom_domain": true }]
+}

@@ -1,0 +1,7 @@
+# Cloudflare Pages 的响应头。
+# 离线缓存脚本每次都要问一下服务器有没有新的，不能被浏览器长期缓存
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: no-cache
