@@ -2,7 +2,7 @@
 
 画面对标《极品飞车：不羁》的 3D 赛车游戏，分 8 个阶段开发。当前完成**阶段 1：赛车与展厅**、**阶段 2：驾驶手感与镜头**、**阶段 3：城市与赛道**、**阶段 4：光照与后期**、**阶段 5：天气与地面**、**阶段 6：特效**、**阶段 7：玩法、UI、音频**。
 
-在线试玩：<https://umbra.dsxzai.com/>。宣传片（2560×1440、60 帧）在仓库的 Releases 里。
+在线试玩：<https://umbra.dsxzai.com/>。仓库里不含依赖（`npm install` 装）、编译产物（`npm run build` 生成）和宣传片成片（用 `promo/` 里的脚本重新生成）。
 
 **授权**：代码用 MIT 授权（见 `LICENSE`）。主角车模型基于 Eric Chadwick 的 Car Concept（© 2024 Darmstadt Graphics Group GmbH，CC BY 4.0）修改而来，不在 MIT 范围内，使用时要按 CC BY 4.0 署名（详见文末「主角车模型」一节）。
 
